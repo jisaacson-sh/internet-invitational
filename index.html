@@ -22,9 +22,15 @@ tr:last-child td{border-bottom:0}.pl{display:flex;align-items:center;gap:10px;ba
 @media(max-width:700px){thead{display:none}table,tbody,tr,td{display:block}tr{border-bottom:1px solid var(--line);padding:8px 0}td{border:0;padding:4px 12px}td[data-l]::before{content:attr(data-l);display:block;font-size:11px;text-transform:uppercase;color:var(--mute)}}
 .tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.tools input{flex:1;min-width:220px;padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font:inherit}
 th.s{cursor:pointer;user-select:none}th.s:hover{color:var(--ink)}th .ar{display:inline-block;width:1em;color:var(--acc)}
+.msort{display:none;align-items:center;gap:8px;flex:1 1 100%}
+.msort label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);white-space:nowrap}
+.msort select{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font:inherit}
+.msort button{flex:none;width:42px;height:42px;border:1px solid var(--line);border-radius:50%;background:var(--card);color:var(--acc);font:inherit;font-size:16px;cursor:pointer;line-height:1}
+.msort button:disabled{opacity:.45;cursor:default;color:var(--mute)}
+@media(max-width:700px){.tools input{min-width:0;width:100%;flex:1 1 100%}.msort{display:flex}}
 </style></head><body><main>
 <h1>Internet Invitational 2026: The 64 Players</h1><p class="sub">All 64 players by drafted team, with a short profile, handicap, and follower count. Rosters only; nothing about matches.</p>
-<div class="tools"><input id="q" type="search" placeholder="Search players by name…" aria-label="Search players"></div><div class="tabs" id="tabs"></div>
+<div class="tools"><input id="q" type="search" placeholder="Search players by name…" aria-label="Search players"><div class="msort" id="msort"><label for="ms">Sort by</label><select id="ms" aria-label="Sort by"><option value="">Default</option><option value="n">Name</option><option value="f">Followers</option><option value="h">Handicap</option></select><button type="button" id="md" aria-label="Toggle sort direction" title="Toggle ascending or descending" disabled>▲</button></div></div><div class="tabs" id="tabs"></div>
 <table><thead id="hd"></thead><tbody id="rows"></tbody></table>
 <div class="notes"><strong>Notes.</strong> Rosters come from handicap-tracker.com/events/internet-invitational-2026. Handicap indexes come from a GHIN Golfer Lookup on Nov 4, 2026, matched by name only, so a single match is very likely but not certain to be the same person. A plus sign means better than scratch. Players not found may have private GHIN profiles. Profiles marked &quot;not verified&quot; or &quot;Unknown&quot; couldn&#x27;t be confirmed. Photos come from ytgolfstats.com/creators (a few from the players&#x27; public X, YouTube or Wikimedia Commons profile pictures) and are embedded in this file; a player without a photo shows initials. Click any player for a larger photo and their full details. Estimates marked (ytgolfstats) are that site&#x27;s handicap estimates from tracked rounds. Follower counts are as of Nov 4, 2026, taken from each player&#x27;s biggest public account (YouTube, Instagram or X), rounded to K/M; &quot;—&quot; means no count could be found.</div></main>
 <div class="bd" id="bd"><div class="dlg" role="dialog" aria-modal="true" id="dlg"><button class="x" id="x" aria-label="Close">&times;</button><div id="body"></div></div></div>
@@ -44,7 +50,7 @@ let L=view===AV?all():D.teams[view].map(r=>[r,view]);
 if(q)L=L.filter(([r])=>r[0].toLowerCase().includes(q.toLowerCase()));
 if(sk){const g={n:r=>r[0].replace(/\s*\(C\)/,'').toLowerCase(),f:r=>fv(r[0]),h:hv}[sk];
 L.sort((a,b)=>{const x=g(a[0]),y=g(b[0]);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return (x<y?-1:x>y?1:0)*sd});}
-document.getElementById('rows').innerHTML=L.length?L.map(([r,t])=>`<tr><td><button class="pl" data-n="${e(r[0])}">${av(r[0],40)}<span>${e(r[0])}</span></button></td>${showT?`<td data-l="Team">${e(t)}</td>`:''}<td data-l="Profile">${e(r[1])}</td><td data-l="Followers">${e((D.F[r[0]]||[])[0]||"—")}</td><td data-l="Handicap">${e(hc(r))}</td></tr>`).join(''):`<tr><td colspan="5" style="color:var(--mute)">No players match “${e(q)}”.</td></tr>`;}
+document.getElementById('rows').innerHTML=L.length?L.map(([r,t])=>`<tr><td><button class="pl" data-n="${e(r[0])}">${av(r[0],40)}<span>${e(r[0])}</span></button></td>${showT?`<td data-l="Team">${e(t)}</td>`:''}<td data-l="Profile">${e(r[1])}</td><td data-l="Followers">${e((D.F[r[0]]||[])[0]||"—")}</td><td data-l="Handicap">${e(hc(r))}</td></tr>`).join(''):`<tr><td colspan="5" style="color:var(--mute)">No players match “${e(q)}”.</td></tr>`;syncM();}
 function open_(n){const t=Object.keys(D.teams).find(k=>D.teams[k].some(r=>r[0]===n)),r=D.teams[t].find(r=>r[0]===n),h=hc(r);
 document.getElementById('body').innerHTML=`<div class="hd">${av(n,240)}<h2>${e(n)}</h2><div style="color:var(--mute)">${e(t)}${n.includes('(C)')?' · Captain':''}</div></div><div class="lab">Profile</div>${e(r[1])}<div class="lab">Followers (as of Nov 4, 2026)</div>${e((D.F[n]||[])[0]||"—")}${(D.F[n]||[])[1]?`<div style="color:var(--mute)">Also: ${e(D.F[n][1])}</div>`:""}<div class="lab">Handicap / GHIN${h.includes('(ytgolfstats)')?' (with ytgolfstats estimate)':''}</div>${e(h)}`;
 document.getElementById('bd').classList.add('open');document.getElementById('x').focus();}
@@ -52,6 +58,10 @@ const close_=()=>document.getElementById('bd').classList.remove('open');
 document.addEventListener('click',ev=>{const b=ev.target.closest('[data-t]');if(b){cur=b.dataset.t;if(cur!=='All players'){q='';sk=null;document.getElementById('q').value=''}draw();return}const s=ev.target.closest('[data-s]');if(s){const k=s.dataset.s;if(sk===k)sd=-sd;else{sk=k;sd=k==='f'?-1:1}draw();return}const p=ev.target.closest('[data-n]');if(p)open_(p.dataset.n);});
 document.getElementById('x').onclick=close_;document.getElementById('bd').onclick=ev=>{if(ev.target.id==='bd')close_()};
 document.getElementById('q').oninput=ev=>{q=ev.target.value.trim();draw()};
+const ms=document.getElementById('ms'),md=document.getElementById('md');
+function syncM(){ms.value=sk||'';md.disabled=!sk;md.textContent=sd>0?'▲':'▼';md.setAttribute('aria-label',sd>0?'Sort ascending (click for descending)':'Sort descending (click for ascending)');}
+ms.onchange=()=>{const k=ms.value;if(!k){sk=null;sd=1}else if(sk!==k){sk=k;sd=k==='f'?-1:1}else sk=k;draw()};
+md.onclick=()=>{if(!sk)return;sd=-sd;draw()};
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape')close_()});draw();
 {const P=new URLSearchParams(location.hash.slice(1));if(P.get('q')){q=P.get('q');document.getElementById('q').value=q}if(P.get('sort')){const[k,d]=P.get('sort').split('-');sk=k;sd=d==='desc'?-1:1}if(P.get('q')||P.get('sort'))draw()}
 if(location.hash.startsWith('#open='))open_(decodeURIComponent(location.hash.slice(6)));
